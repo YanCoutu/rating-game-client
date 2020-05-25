@@ -1,153 +1,98 @@
 <template>
-  <v-container>
-    <v-row class="text-center">
-      <v-col cols="12">
-        <v-img
-          :src="require('../assets/logo.svg')"
-          class="my-3"
-          contain
-          height="200"
-        />
-      </v-col>
-
-      <v-col class="mb-4">
-        <h1 class="display-2 font-weight-bold mb-3">
-          Welcome to Vuetify
-        </h1>
-
-        <p class="subheading font-weight-regular">
-          For help and collaboration with other Vuetify developers,
-          <br>please join our online
-          <a
-            href="https://community.vuetifyjs.com"
-            target="_blank"
-          >Discord Community</a>
-        </p>
-      </v-col>
-
-      <v-col
-        class="mb-5"
-        cols="12"
-      >
-        <h2 class="headline font-weight-bold mb-3">
-          What's next?
-        </h2>
-
-        <v-row justify="center">
-          <a
-            v-for="(next, i) in whatsNext"
-            :key="i"
-            :href="next.href"
-            class="subheading mx-3"
-            target="_blank"
-          >
-            {{ next.text }}
-          </a>
-        </v-row>
-      </v-col>
-
-      <v-col
-        class="mb-5"
-        cols="12"
-      >
-        <h2 class="headline font-weight-bold mb-3">
-          Important Links
-        </h2>
-
-        <v-row justify="center">
-          <a
-            v-for="(link, i) in importantLinks"
-            :key="i"
-            :href="link.href"
-            class="subheading mx-3"
-            target="_blank"
-          >
-            {{ link.text }}
-          </a>
-        </v-row>
-      </v-col>
-
-      <v-col
-        class="mb-5"
-        cols="12"
-      >
-        <h2 class="headline font-weight-bold mb-3">
-          Ecosystem
-        </h2>
-
-        <v-row justify="center">
-          <a
-            v-for="(eco, i) in ecosystem"
-            :key="i"
-            :href="eco.href"
-            class="subheading mx-3"
-            target="_blank"
-          >
-            {{ eco.text }}
-          </a>
-        </v-row>
-      </v-col>
-    </v-row>
-  </v-container>
+    <div>
+        <connect v-show="state === 'joining'" @join-game="joinGame" @create-game="createGame"></connect>
+        <game v-show="state !== 'joining'" :game-id="gameId" :players="players" :leader="leader" :name="name" :state="state" :prompts="prompts"
+              @start-game="startGame" @submit-prompts="submitPrompts" @submit-rating="submitRating"
+        ></game>
+    </div>
 </template>
 
 <script lang="ts">
-  import Vue from 'vue'
+    import Vue from 'vue';
+    import Connect from './Connect.vue';
+    import Game from './Game.vue';
 
-  export default Vue.extend({
-    name: 'HelloWorld',
+    export default Vue.extend({
+        name: 'Page',
+        components: {
+            Connect,
+            Game,
+        },
 
-    data: () => ({
-      ecosystem: [
-        {
-          text: 'vuetify-loader',
-          href: 'https://github.com/vuetifyjs/vuetify-loader',
+        data: () => ({
+            state: 'joining',
+            socket: null as WebSocket | null,
+            name: '',
+            gameId: '',
+            players: [] as string[],
+            leader: '',
+            prompts: [],
+        }),
+        methods: {
+            sendMessage: function (action: string, data: object) {
+                if (this.socket !== null) {
+                    console.log('send data');
+                    this.socket.send(JSON.stringify({action, data}));
+                } else {
+                    console.log('No socket');
+                }
+            },
+            joinGame: function (name: string, gameId: string) {
+                this.name = name;
+                this.sendMessage('join', {name, gameId: gameId});
+            },
+            createGame: function (name: string) {
+                this.name = name;
+                this.sendMessage('create', {name});
+            },
+            updateGame: function (data: { game_id: string; players: string; leader: string }) {
+                this.gameId = data.game_id;
+                this.players = data.players;
+                this.leader = data.leader;
+            },
+            startGame: function() {
+                this.sendMessage('start', {})
+            },
+            submitPrompts: function (e) {
+                this.state = 'waiting_prompts';
+                this.sendMessage('prompt', {prompts: e})
+            },
+            submitRating: function (e) {
+                this.state = 'waiting_rates';
+                this.sendMessage('rated', {prompts: e})
+            }
         },
-        {
-          text: 'github',
-          href: 'https://github.com/vuetifyjs/vuetify',
-        },
-        {
-          text: 'awesome-vuetify',
-          href: 'https://github.com/vuetifyjs/awesome-vuetify',
-        },
-      ],
-      importantLinks: [
-        {
-          text: 'Documentation',
-          href: 'https://vuetifyjs.com',
-        },
-        {
-          text: 'Chat',
-          href: 'https://community.vuetifyjs.com',
-        },
-        {
-          text: 'Made with Vuetify',
-          href: 'https://madewithvuejs.com/vuetify',
-        },
-        {
-          text: 'Twitter',
-          href: 'https://twitter.com/vuetifyjs',
-        },
-        {
-          text: 'Articles',
-          href: 'https://medium.com/vuetify',
-        },
-      ],
-      whatsNext: [
-        {
-          text: 'Explore components',
-          href: 'https://vuetifyjs.com/components/api-explorer',
-        },
-        {
-          text: 'Select a layout',
-          href: 'https://vuetifyjs.com/layout/pre-defined',
-        },
-        {
-          text: 'Frequently Asked Questions',
-          href: 'https://vuetifyjs.com/getting-started/frequently-asked-questions',
-        },
-      ],
-    }),
-  })
+        created: function () {
+            console.log('created');
+            this.socket = new WebSocket('ws://localhost:6789');
+
+            // eslint-disable-next-line @typescript-eslint/no-this-alias
+            const self = this;
+            this.socket.onmessage = function (e) {
+                const data = JSON.parse(e.data);
+                console.log(data);
+                switch (data.action) {
+                    case 'update_room':
+                        if (self.state === 'joining' || self.state === 'waiting_room') {
+                            self.state = 'waiting_room';
+                            self.updateGame(data.data);
+                        }
+                        break;
+                    case 'start':
+                        if (self.state === 'waiting_room') {
+                            self.state = 'writing_prompt';
+                        }
+                        break;
+                    case 'start_rating':
+                        if (self.state === 'waiting_prompts') {
+                            self.prompts = data.data.prompts;
+                            self.state = 'rating_prompts';
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+    })
 </script>

@@ -1,14 +1,37 @@
 <template>
-    $END$
+    <div>
+        <v-textarea
+                v-model="prompt1"
+                outlined
+        ></v-textarea>
+        <v-textarea
+                v-model="prompt2"
+                outlined
+        ></v-textarea>
+        <v-textarea
+                v-model="prompt3"
+                outlined
+        ></v-textarea>
+        <v-btn @click="submit">Soumettre</v-btn>
+    </div>
 </template>
 
 <script lang="ts">
-    import {Vue, Component} from 'vue-property-decorator'
+    import Vue from 'vue'
 
-    @Component({})
-    export default class PromptsWrite extends Vue {
-
-    }
+    export default Vue.extend({
+        name: 'Game',
+        data: () => ({
+            prompt1: '',
+            prompt2: '',
+            prompt3: ''
+        }),
+        methods: {
+            submit: function () {
+                this.$emit('submit-prompts', [this.prompt1, this.prompt2, this.prompt3]);
+            }
+        }
+    })
 </script>
 
 <style scoped>
