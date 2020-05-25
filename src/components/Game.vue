@@ -5,7 +5,8 @@
         <div>
             <prompts-write v-show="state === 'writing_prompt'" @submit-prompts="submitPrompts"></prompts-write>
             <rate-self v-show="state === 'rating_prompts'" :prompts="prompts" @submit-rating="submitRating"></rate-self>
-            <div v-show="state === 'waiting_prompts' || state === 'waiting_rate' || state === 'waiting_guesses'">
+            <guess v-show="state === 'guessing'" :guesses="guesses" :name="name" @submit-guesses="submitGuesses"></guess>
+            <div v-show="state === 'waiting_prompts' || state === 'waiting_rates' || state === 'waiting_guesses'">
                 En attente...
             </div>
         </div>
@@ -17,6 +18,8 @@
     import RoomInfo from './RoomInfo.vue'
     import PromptsWrite from './PromptsWrite.vue'
     import RateSelf from './RateSelf.vue'
+    import Guess from './Guess.vue'
+
 
     export default Vue.extend({
         name: 'Game',
@@ -24,6 +27,7 @@
             RoomInfo,
             PromptsWrite,
             RateSelf,
+            Guess,
         },
         props: {
             gameId: {
@@ -34,7 +38,7 @@
             players: {
                 required: true,
                 type: Array,
-                default: () => [],
+                default: () => ([]),
             },
             leader: {
                 required: true,
@@ -56,6 +60,11 @@
                 type: String,
                 default: '',
             },
+            guesses: {
+                required: true,
+                type: Object,
+                default: () => ({}),
+            },
         },
         methods: {
             start: function () {
@@ -66,6 +75,9 @@
             },
             submitRating: function (e) {
                 this.$emit('submit-rating', e);
+            },
+            submitGuesses: function (e) {
+                this.$emit('submit-guesses', e);
             }
         }
     })

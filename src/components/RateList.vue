@@ -1,13 +1,10 @@
 <template>
-    <draggable tag="v-list" v-model="list" v-bind="dragOptions"
-               @start="drag = true" @end="drag = false" @change="$emit('input', list)">
-        <transition-group  type="transition" :name="!drag ? 'flip-list' : null">
-            <v-list-item v-for="(item, i) in list" :key="i">
-                <v-list-item-content>
-                    <v-list-item-title>{{ item }}</v-list-item-title>
-                </v-list-item-content>
-            </v-list-item>
-        </transition-group>
+    <draggable tag="v-list" :list="list" @change="$emit('input', list)">
+        <v-list-item v-for="item in list" :key="item">
+            <v-list-item-content>
+                <v-list-item-title>{{ item }}</v-list-item-title>
+            </v-list-item-content>
+        </v-list-item>
     </draggable>
 </template>
 
@@ -22,27 +19,20 @@
         },
         props: {
             value: {
-                required: true,
+                required: false,
                 type: Array,
                 default: () => ([])
             }
         },
         data: () => ({
-            list: []
+            list: [],
         }),
-        computed: {
-            dragOptions() {
-                return {
-                    animation: 200,
-                    group: "description",
-                    disabled: false,
-                    ghostClass: "ghost"
-                };
-            }
-        },
         watch: {
-            value(v) {
-                this.list = v
+            value: {
+                handler(v) {
+                    this.list = v
+                },
+                immediate: true
             }
         }
     })
@@ -52,6 +42,7 @@
     .flip-list-move {
         transition: transform 0.5s;
     }
+
     .no-move {
         transition: transform 0s;
     }

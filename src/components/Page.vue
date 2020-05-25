@@ -1,8 +1,18 @@
 <template>
     <div>
         <connect v-show="state === 'joining'" @join-game="joinGame" @create-game="createGame"></connect>
-        <game v-show="state !== 'joining'" :game-id="gameId" :players="players" :leader="leader" :name="name" :state="state" :prompts="prompts"
-              @start-game="startGame" @submit-prompts="submitPrompts" @submit-rating="submitRating"
+        <game v-show="state !== 'joining'"
+              :game-id="gameId"
+              :players="players"
+              :leader="leader"
+              :name="name"
+              :state="state"
+              :prompts="prompts"
+              :guesses="guesses"
+              @start-game="startGame"
+              @submit-prompts="submitPrompts"
+              @submit-rating="submitRating"
+              @submit-guesses="submitGuesses"
         ></game>
     </div>
 </template>
@@ -27,6 +37,7 @@
             players: [] as string[],
             leader: '',
             prompts: [],
+            guesses: {},
         }),
         methods: {
             sendMessage: function (action: string, data: object) {
@@ -60,6 +71,10 @@
             submitRating: function (e) {
                 this.state = 'waiting_rates';
                 this.sendMessage('rated', {prompts: e})
+            },
+            submitGuesses: function (e) {
+                this.state = 'waiting_guesses';
+                this.sendMessage('guessed', {guesses: e})
             }
         },
         created: function () {
@@ -87,6 +102,12 @@
                         if (self.state === 'waiting_prompts') {
                             self.prompts = data.data.prompts;
                             self.state = 'rating_prompts';
+                        }
+                        break;
+                    case 'guess':
+                        if (self.state === 'waiting_rates') {
+                            self.guesses = data.data.guesses;
+                            self.state = 'guessing';
                         }
                         break;
                     default:
