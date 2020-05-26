@@ -9,6 +9,8 @@
               :state="state"
               :prompts="prompts"
               :guesses="guesses"
+              :all-guesses="allGuesses"
+              :answers="answers"
               @start-game="startGame"
               @submit-prompts="submitPrompts"
               @submit-rating="submitRating"
@@ -38,6 +40,8 @@
             leader: '',
             prompts: [],
             guesses: {},
+            allGuesses: {},
+            answers: {},
         }),
         methods: {
             sendMessage: function (action: string, data: object) {
@@ -108,6 +112,13 @@
                         if (self.state === 'waiting_rates') {
                             self.guesses = data.data.guesses;
                             self.state = 'guessing';
+                        }
+                        break;
+                    case 'show':
+                        if (self.state === 'waiting_guesses') {
+                            self.answers = data.data.answers;
+                            self.allGuesses = data.data.guesses;
+                            self.state = 'answers';
                         }
                         break;
                     default:

@@ -6,6 +6,7 @@
             <prompts-write v-show="state === 'writing_prompt'" @submit-prompts="submitPrompts"></prompts-write>
             <rate-self v-show="state === 'rating_prompts'" :prompts="prompts" @submit-rating="submitRating"></rate-self>
             <guess v-show="state === 'guessing'" :guesses="guesses" :name="name" @submit-guesses="submitGuesses"></guess>
+            <answers v-show="state === 'answers'" :answers="answers" :guesses="allGuesses" :players="players"></answers>
             <div v-show="state === 'waiting_prompts' || state === 'waiting_rates' || state === 'waiting_guesses'">
                 En attente...
             </div>
@@ -19,6 +20,7 @@
     import PromptsWrite from './PromptsWrite.vue'
     import RateSelf from './RateSelf.vue'
     import Guess from './Guess.vue'
+    import Answers from './Answers.vue'
 
 
     export default Vue.extend({
@@ -28,6 +30,7 @@
             PromptsWrite,
             RateSelf,
             Guess,
+            Answers,
         },
         props: {
             gameId: {
@@ -61,6 +64,16 @@
                 default: '',
             },
             guesses: {
+                required: true,
+                type: Object,
+                default: () => ({}),
+            },
+            allGuesses: {
+                required: true,
+                type: Object,
+                default: () => ({}),
+            },
+            answers: {
                 required: true,
                 type: Object,
                 default: () => ({}),
