@@ -83,7 +83,7 @@
         },
         created: function () {
             console.log('created');
-            this.socket = new WebSocket('ws://localhost:6789');
+            this.socket = new WebSocket('ws://blooming-brook-70135.herokuapp.com');
 
             // eslint-disable-next-line @typescript-eslint/no-this-alias
             const self = this;
