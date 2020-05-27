@@ -1,7 +1,7 @@
 <template>
     <div>
         <connect v-show="state === 'joining'" @join-game="joinGame" @create-game="createGame"></connect>
-        <game v-show="state !== 'joining'"
+        <game-old v-show="state !== 'joining'"
               :game-id="gameId"
               :players="players"
               :leader="leader"
@@ -15,20 +15,20 @@
               @submit-prompts="submitPrompts"
               @submit-rating="submitRating"
               @submit-guesses="submitGuesses"
-        ></game>
+        ></game-old>
     </div>
 </template>
 
 <script lang="ts">
     import Vue from 'vue';
     import Connect from './Connect.vue';
-    import Game from './Game.vue';
+    import GameOld from './GameOld.vue';
 
     export default Vue.extend({
         name: 'Page',
         components: {
             Connect,
-            Game,
+            GameOld,
         },
 
         data: () => ({

@@ -1,24 +1,28 @@
 <template>
   <v-app>
-    <v-content>
-      <page></page>
-    </v-content>
+    <router-view/>
   </v-app>
 </template>
 
-<script lang="ts">
-import Vue from 'vue';
-import Page from './components/Page.vue';
+<style lang="scss">
+#app {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+}
 
-export default Vue.extend({
-  name: 'App',
+#nav {
+  padding: 30px;
 
-  components: {
-    Page,
-  },
+  a {
+    font-weight: bold;
+    color: #2c3e50;
 
-  data: () => ({
-    //
-  }),
-});
-</script>
+    &.router-link-exact-active {
+      color: #42b983;
+    }
+  }
+}
+</style>
