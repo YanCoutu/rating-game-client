@@ -32,7 +32,7 @@
                 </v-col>
             </v-row>
         </v-container>
-        <v-snackbar v-model="toast">{{ error }}</v-snackbar>
+        <v-snackbar v-model="toast" color="error" top>{{ error }}<v-btn @click="toast = false" text>Fermer</v-btn></v-snackbar>
     </v-content>
 </template>
 
